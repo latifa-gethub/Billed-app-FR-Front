@@ -18,7 +18,13 @@ export default class NewBill {
     new Logout({ document, localStorage, onNavigate });
   }
   handleChangeFile = e => {
+    const btn = document.querySelector('#btn-send-bill');
     e.preventDefault();
+    /* const messageE=this.document.queryByTestId('error-file')
+     if(messageE){
+      messageE.remove();
+     
+     } */
     const fileInput = this.document.querySelector(`input[data-testid="file"]`);
     const file = fileInput.files[0];
     console.log(fileInput);
@@ -27,25 +33,34 @@ export default class NewBill {
     console.log(file.type);
     if (!file) {
       //si aucun file ni selectionné
+      
       return;
     }
     //verifier si le file est une image
     const extensionPicture = type =>
       ['image/jpeg', 'image/jpg', 'image/png'].includes(type);
     if (!extensionPicture(file.type)) {
+      console.log("if")
       const errorExtention = document.createElement('div');
+      errorExtention.setAttribute('data-testId', 'error-file');
+      errorExtention.setAttribute('id','errorElement')
       errorExtention.textContent = "le fichier selectionné n'ai pas valide";
       errorExtention.style.color = 'red';
       fileInput.parentElement.appendChild(errorExtention);
       //initialiser fileInput pour selectionner nouveau fichier
       fileInput.value = '';
-      /* const btn = document.querySelector('#btn-send-bill');
-      btn.disabled = true; */
+    
+      btn.disabled = true;
       return;
-    } /* else {
-      errorExtention.textContent = '';
+    } else {
+      console.log("else")
+
+      const errorExtention=this.document.getElementById('errorElement')
+      if(errorExtention){
+         errorExtention.textContent = '';      
+      }
       btn.disabled = false;
-    } */
+    }
 
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
