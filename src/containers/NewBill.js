@@ -40,7 +40,7 @@ export default class NewBill {
       const errorExtention = document.createElement('div');
       errorExtention.setAttribute('data-testId', 'error-file');
       errorExtention.setAttribute('id','errorElement')
-      errorExtention.textContent = "le fichier selectionné n'ai pas valide";
+      errorExtention.textContent = "le fichier selectionné n'est pas valide";
       errorExtention.style.color = 'red';
       fileInput.parentElement.appendChild(errorExtention);
       //initialiser fileInput pour selectionner nouveau fichier

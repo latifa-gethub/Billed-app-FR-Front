@@ -99,4 +99,112 @@ describe('Given I am connected as an employee,and i am in bills page', () => {
     });
   });
 });
+/********Test d'integration Get************/
 
+describe("Given I am a user connected as Employee",()=>{
+  describe("When I navigate to Bills",()=>{
+    test("Then fetches bills from mock API GET",async()=>{
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({ pathname })
+      }
+      const newBills = new Bill({ document, onNavigate, store:mockStore, localStorage:localStorageMock })
+      // Simulation function for getBills method
+      const getBillsMock = jest.fn(()=>newBills.getBills())
+      const listBills = await getBillsMock()
+      expect(getBillsMock).toHaveBeenCalled()
+
+      // Result ok if the bills list render is 4
+      expect(listBills.length).toBe(4)
+
+      await waitFor(() => screen.getAllByText("Mes notes de frais"))
+
+      // Result ok if I can see the render of the page with elements of differents bills
+      expect(screen.getByText("Nouvelle note de frais")).toBeTruthy()
+      expect(screen.getAllByTestId("icon-eye")).toBeTruthy()
+      expect(screen.getByText("Services en ligne")).toBeTruthy()
+      expect(screen.getByText("100 €")).toBeTruthy()
+      expect(screen.getByText("Billed")).toBeTruthy()
+    })
+  })
+  describe("When an error occurs on API", () => {
+    beforeEach(() => {
+      // Spy function bills of mockStore
+      jest.spyOn(mockStore, "bills")
+      Object.defineProperty(
+          window,
+          "localStorage",
+          { value: localStorageMock }
+      )
+      window.localStorage.setItem("user", JSON.stringify({
+        type: "Employe",
+        email: "a@a"
+      }))
+      const root = document.createElement("div")
+      root.setAttribute("id", "root")
+      document.body.appendChild(root)
+      router()
+    })
+    test("fetches bills from an API and fails with 400 message error", async () => {
+      //Erreur 400 (Bad Request) syntax request, ressource not found, bad URL
+      // Custom implementation of the bills method that will only be executed once
+      mockStore.bills.mockImplementationOnce(() => {
+        return {
+          list : () =>  {
+            return Promise.reject(new Error("Erreur 400"))
+          }
+        }})
+      window.onNavigate(ROUTES_PATH.Bills)
+      // The code is suspended until the promise is resolved
+      await new Promise(process.nextTick);
+      const message = screen.getByText(/Erreur 400/)
+
+      // Result ok if the message is correctly return
+      expect(message).toBeTruthy()
+    })
+    test("fetches bills from an API and fails with 401 message error", async () => {
+      //Erreur 401 (Unauthorized)
+      mockStore.bills.mockImplementationOnce(() => {
+        return {
+          list : () =>  {
+            return Promise.reject(new Error("Erreur 401"))
+          }
+        }})
+      window.onNavigate(ROUTES_PATH.Bills)
+      await new Promise(process.nextTick);
+      const message = screen.getByText(/Erreur 401/)
+       // Result ok if the message is correctly return
+      expect(message).toBeTruthy()
+    })
+    test("fetches bills from an API and fails with 404 message error", async () => {
+      //Erreur 404 (Not Found) ressource not found
+      mockStore.bills.mockImplementationOnce(() => {
+        return {
+          list : () =>  {
+            return Promise.reject(new Error("Erreur 404"))
+          }
+        }})
+      window.onNavigate(ROUTES_PATH.Bills)
+      await new Promise(process.nextTick);
+      const message = screen.getByText(/Erreur 404/)
+      // Result ok if the message is correctly return
+      expect(message).toBeTruthy()
+    })
+    test("fetches bills from an API and fails with 500 message error", async () => {
+      //Erreur 500 (Internal Server Error) 
+      mockStore.bills.mockImplementationOnce(() => {
+        return {
+          list : () =>  {
+            return Promise.reject(new Error("Erreur 500"))
+          }
+        }})
+      window.onNavigate(ROUTES_PATH.Bills)
+      await new Promise(process.nextTick);
+      const message = screen.getByText(/Erreur 500/)
+      // Result ok if the message is correctly return
+      expect(message).toBeTruthy()
+    })
+  })
+})
+
+
+  
