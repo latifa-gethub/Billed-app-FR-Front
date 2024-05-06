@@ -20,11 +20,7 @@ export default class NewBill {
   handleChangeFile = e => {
     const btn = document.querySelector('#btn-send-bill');
     e.preventDefault();
-    /* const messageE=this.document.queryByTestId('error-file')
-     if(messageE){
-      messageE.remove();
      
-     } */
     const fileInput = this.document.querySelector(`input[data-testid="file"]`);
     const file = fileInput.files[0];
     console.log(fileInput);
